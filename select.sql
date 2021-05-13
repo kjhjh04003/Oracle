@@ -1,7 +1,7 @@
 -- 해당 스키마 내의 테이블 확인
 SELECT * FROM TAB;
 -- 특정 테이블 구문 확인
-DESC employees;
+DESC jobs;
 
 -- SELECT문
 -- employees 테이블 전체 데이터 검색
@@ -101,12 +101,13 @@ SELECT department_id, salary, first_name FROM employees ORDER BY department_id, 
 SELECT first_name ||' '|| last_name 이름, salary 월급, phone_number 전화번호, hire_date 입사일 FROM employees ORDER BY hire_date;
 
 --2. 업무별로 업무이름과 최고월급을 월급의 내림차순으로 정렬
-SELECT JOB_ID, MAX(salary) as 최고월급 FROM employees ORDER BY salary DESC;
+SELECT job_title, max_salary FROM jobs ORDER BY max_salary;
 
 -- 3. 담당 매니저가 배정되었으나 커미션비율이 없고, 월급이 3000초과인 직원의 이름, 매니저 아이디, 커미션 비율, 월급을 출력
 SELECT first_name, manager_id, commission_pct, salary FROM employees WHERE commission_pct IS NULL AND salary > 3000; --46개행
 
 -- 4. 최고월급(max_salary)이 10000 이상인 업무의 이름과 최고월급을 최고월급의 내림차순으로 정렬하여 출력
+SELECT job_title, max_salary FROM jobs WHERE max_salary>=10000 ORDER BY max_salary; 
 
 -- 5. 월급이 14000미만 10000이상인 직원의 이름, 월급, 커미션퍼센트를 월급순(내림차순) 출력
 -- 단 커미션퍼센트가 null이면 0으로 나타내시오
@@ -114,6 +115,7 @@ SELECT first_name, salary, NVL(commission_pct,0) commission_pct FROM employees W
 
 -- 6. 부서번호가 10, 90, 100인 직원의 이름, 월급, 입사일, 부서번호 출력
 -- 입사일은 1977-12와 같이 표시
+SELECT first_name, salary, TO_CHAR(hire_date, 'YYYY-MM') as hire_date, department_id FROM employees WHERE department_id IN(10,90,100);
 
 -- 7. 이름에 S또는 s가 들어가는 직원의 이름, 월급 출력
 SELECT first_name, salary FROM employees WHERE first_name LIKE '%S%' OR first_name LIKE '%s%'; -- 32개행
@@ -239,3 +241,15 @@ SELECT first_name, department_id, CASE WHEN department_id <= 30 THEN 'A-GROUP'
                                         WHEN department_id <= 100 THEN 'C-GROUP'
                                         ELSE 'REMAINDER' END as TEAM
 FROM employees ORDER BY TEAM;
+
+-----------------------------------------------
+-- 연습문제
+-- 8. 전체 부서를 출력, 순서는 부서이름이 긴 순서대로 출력
+SELECT * FROM departments ORDER BY LENGTH(department_name) DESC;
+
+-- 9. 나라이름을 대문자로 출력하고 오름차순
+SELECT UPPER(country_name) FROM countries ORDER BY country_name;
+
+-- 10. 입사일이 03/12/31일 이전에 입사한 직원의 이름, 월급 ,전화번호, 입사일을 출력
+-- 전화번호는 545-343-3433 형태로 출력
+SELECT first_name, salary, PEPLACE(phone_number,'.','-'), hire_date FROM employees WHERE hire_date<='03/12/31';
