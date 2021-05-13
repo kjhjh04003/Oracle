@@ -55,23 +55,29 @@ SELECT first_name 이름, salary*12 연봉, hire_date 입사일, department_id �
 -- 부서 ID가 10인 사원의 명단
 SELECT * FROM employees WHERE department_id=10;
 -- 논리 조합 : 급여가 14000이하이거나 17000이상인 사원의 이름과 급여 출력
-SELECT first_name 이름, salary 급여 FROM employees WHERE salary<=14000 OR salary>=17000; --50개행
+SELECT first_name 이름, salary 급여 FROM employees WHERE salary<=14000 OR salary>=17000; --107개행
+-- 위의 문제의 반대 : 여집합
+SELECT first_name 이름, salary 급여 FROM employees WHERE NOT(salary<=14000 OR salary>=17000); --0개행
 -- 부서ID가 90인 사원 중, 급여가 20000이상인 사원
-SELECT * FROM employees WHERE department_id=90 and salary>=20000;
+SELECT * FROM employees WHERE department_id=90 and salary>=20000; -- 1개행
+-- BETWEEN 연산자
 -- 입사일이 07/01/01 ~ 07/12/31 구간에 있는 사원의 목록 출력
-SELECT * FROM employees WHERE hire_date BETWEEN '07/01/01' and '07/12/31' ORDER BY hire_date;
+SELECT first_name 이름, hire_date 입사일 FROM employees WHERE hire_date BETWEEN '07/01/01' and '07/12/31' ORDER BY hire_date; --19개행
 -- 부서 ID가 10,20,40인 사원 명단 출력
-SELECT *FROM employees WHERE department_id IN(10,20,40);
+SELECT *FROM employees WHERE department_id IN(10,20,40); --4개행
 -- MANAGER_ID가 100,120,147인 사원 명단 출력
 -- 비교 연산자 사용
-SELECT * FROM employees WHERE MANAGER_ID=100 OR MANAGER_ID=120 OR MANAGER_ID=147;
+SELECT * FROM employees WHERE manager_id=100 OR manager_id=120 OR manager_id=147; --28개행
 -- IN 연산자 사용
-SELECT * FROM employees WHERE MANAGER_ID IN(100,120,147);
+SELECT * FROM employees WHERE manager_id IN(100,120,147); --28개행
+-- LIKE 검색
+-- % : 임의의 길이의 지정되지 않은 문자열
+-- _ : 한개의 임의의 문자
 -- 이름에 am을 포함한 사원의 이름과 급여 출력
-SELECT first_name 이름, salary 급여 FROM employees WHERE first_name LIKE '%am%';
+SELECT first_name 이름, salary 급여 FROM employees WHERE first_name LIKE '%am%'; --7개행
 -- 이름의 두번째 글자가 a인 사원의 이름과 급여를 출력
-SELECT first_name 이름, salary 급여 FROM employees WHERE first_name LIKE '_a%';
+SELECT first_name 이름, salary 급여 FROM employees WHERE first_name LIKE '_a%'; -- 32개행
 -- 이름의 네번째 글자가 a인 사원의 이름 출력
-SELECT first_name 이름 FROM employees WHERE first_name LIKE '___a%';
+SELECT first_name 이름 FROM employees WHERE first_name LIKE '___a%'; -- 12개행
 -- 이름이 4글자인 사원 중 끝에서 두 번째 글자가 a인 사원의 이름 출력
-SELECT first_name 이름 FROM employees WHERE first_name LIKE '__a_';
+SELECT first_name 이름 FROM employees WHERE first_name LIKE '__a_'; -- 2개행
