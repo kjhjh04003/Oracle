@@ -179,3 +179,63 @@ SELECT sysdate, -- 현재 날짜와 시간
 FROM dual;
 -- 현재 날짜 기준, 입사한지 몇 개월이 지났는가
 SELECT first_name, hire_date, ROUND(MONTHS_BETWEEN(sysdate, hire_date)) FROM employees;
+
+-----------------------------------------------
+-- 변환 함수
+-----------------------------------------------
+-- TO_NUMBER(s, frm) -> s는 문자열, frm 포맷형, 문자열을 포맷형태로 수치화
+-- TO_DATE(s, frm) -> s는 문자열, frm 포맷형, 문자열을 데이터 형식으로 
+-- TO_CHAR(o, fmt) -> o는 숫자, fmt는 포맷형, 숫자,날짜를 문자형으로
+
+-- TO_CHAR
+SELECT first_name, hire_date, TO_CHAR(hire_date, 'YYYY-MM-DD HH24:MI:SS') FROM employees;
+-- 현재 날짜의 포맷
+SELECT sysdate, TO_CHAR(sysdate, 'YYYY-MM-DD HH24:MI:SS') FROM dual;
+-- 숫자 변환 포맷 
+SELECT TO_CHAR(123456789.0123,'999,999,999,999.99') FROM dual;
+-- 연봉 정보문자열로포맷팅
+SELECT first_name, TO_CHAR(salary*12, '$999,999.99') salary FROM employees;
+-- TO_NUMBER : 문자열 - > 숫자
+SELECT 1999,1350.99 FROM dual;
+SELECT TO_NUMBER('1,999', '999,999'), TO_NUMBER('$1,350.99','$999,999.99') FROM dual;
+-- TO_DATE : 문자열 -> 날짜
+SELECT '2021-05-05 12:30' FROM dual; -- 문자데이터로 출력
+SELECT TO_DATE('2021-05-05 14:30', 'YYYY-MM-DD HH24:MI') FROM dual; -- 날짜데이터로 출력
+
+-- DATE 타입의 연산
+-- DATE +(-) Number : 날짜에 일수를 더한다.(뺀다.) -> 데이트 타입 출력
+-- DATE - DATE : 날짜에서 날짜를 뺀 일수 확인
+-- DATE + Number/24 : 날짜에 시간을 더할 때 시간을 24시간으로 나눈값을 더한다.(뺀다.)
+SELECT TO_CHAR(sysdate, 'YY/MM/DD HH24:MI'),
+    sysdate + 1, --1 일 후
+    sysdate - 1, -- 1일 전
+    sysdate - TO_DATE('2021-09-24','YYYY-MM-DD'), -- 두 날짜의 사이 일 수
+    TO_CHAR(sysdate + 13/24, 'YY/MM/DD HH24:MI') -- 13시간 후 
+FROM dual;
+
+--NULL 관련 함수
+-- NVL()
+SELECT first_name, salary, commission_pct, salary+(salary*NVL(commission_pct,0)) FROM employees;
+--NVL2()
+SELECT first_name, salary, commission_pct, salary+(salary*NVL2(commission_pct,salary*commission_pct,0)) FROM employees;
+-- CASE 함수
+-- 보너스를 지급, AD관련직원 20%, SA관련직원 10%, IT관련직원 8%, 나머지는 5% 지급
+SELECT first_name, job_id, salary, SUBSTR(job_id, 1,2),
+    CASE SUBSTR(job_id, 1,2) WHEN 'AD' THEN salary*0.2
+                            WHEN 'SA' THEN salary*0.1
+                            WHEN 'IT' THEN salary*0.08
+                            ELSE salary*0.05
+    END as bonus
+FROM employees;
+-- DECODE 함수
+SELECT first_name, job_id, salary, DECODE(SUBSTR(job_id, 1,2), 'AD',salary*0.2, 'SA',salary*0.1,
+                                    'IT',salary*0.08,salary*0.05) BONUS 
+FROM employees;
+-- 직원의 이름, 부서, 팀 출력
+-- 팀은 코드로 결정, 그룹 이름 출력
+-- 부서 코드10~30 ,A그룹 / 부서 코드40~50, B그룹 / 부서 코드60~100, C그룹 / 나머지는 REMAINDER
+SELECT first_name, department_id, CASE WHEN department_id <= 30 THEN 'A-GROUP'
+                                        WHEN department_id <= 50 THEN 'B-GROUP'
+                                        WHEN department_id <= 100 THEN 'C-GROUP'
+                                        ELSE 'REMAINDER' END as TEAM
+FROM employees ORDER BY TEAM;
