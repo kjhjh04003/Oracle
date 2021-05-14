@@ -196,3 +196,65 @@ SELECT department_id, employee_id, first_name, salary FROM employees WHERE (depa
 SELECT emp.department_id, emp.employee_id, first_name, emp.salary 
 FROM employees emp, ( SELECT department_id, MAX(salary) salary FROM employees GROUP BY department_id) sal 
 WHERE emp.department_id=sal.department_id AND emp.salary=sal.salary ORDER BY emp.department_id; 
+
+---------------
+-- TOP-K Query
+---------------
+-- rownum : 쿼리 질의 수행결과에 의한 가상의 컬럼 -> 쿼리 결과의 순서 반환
+-- 2007년 입사자 중, 연봉 순위 5위까지 추출
+SELECT rownum, first_name, salary FROM (SELECT * FROM employees WHERE hire_date LIKE '07%' ORDER BY salary DESC) WHERE rownum <= 5;
+
+---------------
+-- 집합 연산
+---------------
+SELECT first_name, salary, hire_date FROM employees WHERE hire_date<'05/01/01' ORDER BY hire_date DESC; -- 24개행, 20050101이전 입사자
+SELECT first_name, salary, hire_date FROM employees WHERE salary>12000 ORDER BY salary; -- 8개행, 월급이 12000 초과하여 받는 사람
+-- INTERSECT(교집합)
+-- 입사일이 20050101이전 입사자이고 월급이 12000 초과인 사람
+SELECT first_name, salary, hire_date FROM employees WHERE hire_date<'05/01/01'
+INTERSECT
+SELECT first_name, salary, hire_date FROM employees WHERE salary>12000;
+-- UNION(합집합)
+-- 입사일이 20050101이전 입사자이거나 월급이 12000 초과인 사람, 중복제거0
+SELECT first_name, salary, hire_date FROM employees WHERE hire_date<'05/01/01'
+UNION
+SELECT first_name, salary, hire_date FROM employees WHERE salary>12000 ORDER BY first_name;
+-- UNION ALL(합집합)
+-- 입사일이 20050101이전 입사자이거나 월급이 12000 초과인 사람, 중복제거x
+SELECT first_name, salary, hire_date FROM employees WHERE hire_date<'05/01/01'
+UNION ALL
+SELECT first_name, salary, hire_date FROM employees WHERE salary>12000 ORDER BY first_name;
+-- MINUS(차집합)
+-- 입사일이 20050101이전 입사자 중에서 월급이 12000이하인 사람
+SELECT first_name, salary, hire_date FROM employees WHERE hire_date<'05/01/01'
+MINUS
+SELECT first_name, salary, hire_date FROM employees WHERE salary>12000 ORDER BY first_name;
+-- MINUS(차집합)
+-- 월급이 12000 초과인 사람 중 입사일이 20050101이후에 입사한 사람
+SELECT first_name, salary, hire_date FROM employees WHERE salary>12000
+MINUS
+SELECT first_name, salary, hire_date FROM employees WHERE hire_date<'05/01/01';
+
+---------------
+-- RANK 관련
+---------------
+SELECT first_name, salary, RANK() OVER (ORDER BY salary DESC) as rank, -- 중복 순위 건너뛰고 출력
+                            DENSE_RANK() OVER (ORDER BY salary DESC) as dense_rank, -- 중복 순위 상관없이 차례대로 순위 출력
+                            ROW_NUMBER() OVER (ORDER BY salary DESC) as row_number --rank가 출력한 레코드 순서
+FROM employees;
+
+---------------
+-- 계층형 쿼리
+---------------
+-- oracle제공, 질의 결과를 트리 형태로 출력
+-- employees테이블을 이용하여 최사의 조직도
+SELECT level, employee_id, first_name, manager_id FROM employees START WITH manager_id IS NULL -- root 노드의 조건
+CONNECT BY PRIOR employee_id=manager_id
+ORDER BY level;
+-- JOIN을 이용해서 manager 이름까지 확인
+SELECT level, emp.employee_id, emp.first_name || ' ' || emp.last_name, emp.manager_id, man.employee_id, man.first_name ||' '|| man.last_name
+FROM employees emp LEFT OUTER JOIN employees man
+ON emp.manager_id=man.employee_id
+START WITH emp.manager_id IS NULL
+CONNECT BY PRIOR emp.employee_id=emp.manager_id
+ORDER BY level;
