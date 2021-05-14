@@ -145,3 +145,54 @@ SELECT department_id, job_id, SUM(salary) FROM employees GROUP BY ROLLUP(departm
 -- CUBE : cross tab에 의한 summary 함께 추출
 -- rollup 함수에 의해 제공되는 item total과 함께 column total 값을 함께 제공
 SELECT department_id, job_id, SUM(salary) FROM employees GROUP BY CUBE(department_id, job_id) ORDER BY department_id;
+
+---------------
+-- SUBQUERY
+---------------
+-- 하나의 SQL 내부에서 다른 SQL를 포함하는 형태
+-- 임시로 테이블 구성, 임시결과를 바탕으로 최종 쿼리를 수행
+-- 사원들의 급여 중앙값보다 많은 급여를 받은 직원들(1. 직원의 중간값 추출 2. 1보다 급여를 많이 받는 직원 추출)
+-- 직원의 중간값 추출
+SELECT MEDIAN(salary) FROM employees; -- 6200원
+-- 위의 결과값 보다 많은 급여를 받는 직원 추출
+SELECT first_name, salary FROM employees WHERE salary>6200 ORDER BY salary DESC;
+-- 두 쿼리 합치기
+SELECT first_name, salary FROM employees WHERE salary > (SELECT MEDIAN(salary) FROM employees) ORDER BY salary DESC; 
+
+-- 단일행 서브쿼리 연습
+-- 'Den'보다 급여를 많이 받는 사원의 이름과 급여
+SELECT first_name, salary FROM employees WHERE salary > (SELECT salary FROM employees WHERE first_name='Den') ORDER BY salary DESC;
+-- Julia 입사일:060624보다 늦게 입사한 사원 출력
+SELECT * FROM employees WHERE hire_date>(SELECT hire_date FROM employees WHERE first_name='Susan') ORDER BY hire_date;
+SELECT first_name, hire_date FROM employees where first_name='Susan'; -- 02/06/07
+-- 급여를 가장 적게 받는 사람의 이름, 급여, 사원번호 출력
+SELECT first_name, salary, employee_id FROM employees WHERE salary = (SELECT MIN(salary) FROM employees);
+-- 평균 급여보다 적게 받는 사원의 이름, 급여를 출력
+SELECT first_name, salary FROM employees WHERE salary < (SELECT ROUND(AVG(NVL(salary,0)),2) FROM employees) ORDER BY salary DESC;
+
+-- 다중행 서브쿼리 연습
+-- 서브쿼리의 결과 레코드가 둘 이상인 것 -> 단순 비교 연산자 수행 불가
+-- 집합 연산에 관련된 IN, ANY, ALL, EXSIST 등을 이용
+-- IN : IN(12008, 8300) -> salary=12008 OR salary=8300
+SELECT first_name, salary FROM employees WHERE salary IN(SELECT salary FROM employees where department_id=110);
+-- ALL : ALL(12008, 8300) -> salary>12008 AND salary>8300
+SELECT first_name, salary FROM employees WHERE salary > ALL(SELECT salary FROM employees where department_id=110);
+-- ANY : ANY(12008, 8300) -> salary>12008 OR salary>8300
+SELECT first_name, salary FROM employees WHERE salary > ANY(SELECT salary FROM employees where department_id=110);
+
+-- Correlated Query
+-- 바깥쪽 쿼리(주쿼리)와 안쪽 쿼리(서브 쿼리)가 서로 연관된 쿼리
+-- 의미
+-- 자신이 속한 부서의 평균 급여보다 많이 받는 직원 출력
+-- 1. 주쿼리에서 부서번호를 추출 -> 2. 서브 쿼리에서 주 쿼리의 부서번호와 서브 쿼리의 부서번호가 같은 것 중, 급여의 평균을 추출 -> 3. 주쿼리에서 급여와 서브쿼리의 평균급여를 비교하여 큰 값 추출
+SELECT first_name, salary, department_id FROM employees outer WHERE salary > (SELECT AVG(salary) FROM employees WHERE department_id=outer.deptno);
+
+-- 서브쿼리 연습
+-- 각 부서별로 최고 급여를 받는 사원 출력
+-- 조건절 이용 1. 각 부서의 최고 급여 테이블 2. 1의 결과인 부서 아이디와 최고 급여를 비교해서 최종 쿼쿼리
+SELECT department_id, MAX(salary) FROM employees GROUP BY department_id ORDER BY  department_id; -- 1
+SELECT department_id, employee_id, first_name, salary FROM employees WHERE (department_id, salary) IN(SELECT department_id, MAX(salary) FROM employees GROUP BY department_id) ORDER BY  department_id;
+-- 조인 이용
+SELECT emp.department_id, emp.employee_id, first_name, emp.salary 
+FROM employees emp, ( SELECT department_id, MAX(salary) salary FROM employees GROUP BY department_id) sal 
+WHERE emp.department_id=sal.department_id AND emp.salary=sal.salary ORDER BY emp.department_id; 
