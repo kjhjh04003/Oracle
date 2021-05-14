@@ -49,3 +49,22 @@ SELECT loc.location_id, city, department_name, department_id FROM locations loc 
 SELECT region_name, country_name FROM regions reg JOIN countries c ON reg.region_id=c.region_id ORDER BY region_name, c.country_name DESC; -- 25 개행
 
 -- 5. 자신의 매니저보다 채용일(hire_date)이 빠른 사원의 사번, 이름, 채용일, 매니저이름(first_name), 매니저 입사일을 조회
+-- SELECT emp.employee_id, emp.first_name, emp.hire_date, man.first_name, man.hire_date FROM employees emp, employees man WHERE emp.hire_date < (SELECT hire_date FROM employees WHERE emp.employee_id=man.employee_id);
+
+-- 6. 나라별로 어떠한 부서들이 위치하고 있는지 파악
+-- 나라명, 나라아이디, 도시명, 도시아이디, 부서명, 부서아이디를 나라명(오름차순)으로 정렬
+-- 값이 없는 경우 표시x
+SELECT c.country_name, c.country_id, loc.city, loc.location_id, dept.department_name, dept.department_id 
+FROM countries c, locations loc JOIN departments dept ON loc.location_id=dept.location_id 
+WHERE c.country_id=loc.country_id ORDER BY c.country_name; -- 27 개행
+
+-- 7.job_history 테이블은 과거 담당자의 데이터
+-- 과거의 업무아이디(job_id)가 'AC_ACCOUNT'로 근무한 사번의 사번, 이름(풀네임), 업무아이디, 시작일, 종료일 출력
+SELECT emp.employee_id,emp.first_name ||' '|| emp.last_name as "name", his.job_id, his.start_date, his.end_date
+FROM employees emp JOIN job_history his ON emp.employee_id=his.employee_id
+WHERE his.job_id='AC_ACCOUNT'; -- 2 개행
+
+-- 8. 각 부서에 대해서 부서번호, 부서이름, 매니저의 이름, 위치한 도시, 나라의 이름, 지역구분 이름까지 전부 출력
+
+--9. 각 사원에 대해서 사번, 이름, 부서명, 매니저의 이름 조회
+-- 부서가 없는 직원도 표시
