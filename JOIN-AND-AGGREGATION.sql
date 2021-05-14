@@ -86,3 +86,62 @@ SELECT emp.employee_id, emp.first_name, emp.manager_id, man.first_name FROM empl
 SELECT *FROM employees WHERE manager_id IS NULL; -- 1 개행
 -- manager가 없는 사람도 출력
 SELECT emp.employee_id, emp.first_name, emp.manager_id, man.first_name FROM employees emp, employees man WHERE emp.manager_id=man.employee_id (+);
+
+---------------
+-- AGGRIGATION
+-- 여러 행을 입력으로 데이터를 집계하여 하나의 행으로 반환
+---------------
+-- COUNT() :갯수 세기
+-- employees 테이블에 몇 개의 레코드가 있는지
+SELECT COUNT(*) FROM employees; -- *로 카운트 : 모든 레코드의 수(null 포함)
+SELECT COUNT(commission_pct) FROM employees; -- 컬럼 명시 카운트 : null값 제외
+-- OR
+SELECT COUNT(*) FROM employees WHERE commission_pct IS NOT NULL;
+
+-- SUM() : 합계
+-- 사원들의 급여 총합
+SELECT SUM(salary) FROM employees;
+
+-- AVG() : 평균
+-- 사원들의 급여 평균
+SELECT AVG(salary) FROM employees;
+-- 사원들이 받는 커미션 비율의 평균치
+SELECT AVG(commission_pct) FROM employees; -- 22%
+-- null을 0으로 치환하고 통계
+SELECT AVG(NVL(commission_pct,0)) FROM employees; -- 7%
+
+-- MIN(): 최솟값, MAX(): 최대값, MEDIAN(): 중앙값
+-- 사원들이 받는 급여의 최솟값, 최댓값, 평균, 중앙값
+SELECT MIN(salary), MAX(salary), AVG(salary), MEDIAN(salary) FROM employees;
+
+-- 흔히 범하는 오류
+-- 부서별 평균 급여 산정
+SELECT department_id, AVG(salary) FROM employees; -- '단일 그룹의 그룹 함수가 아닙니다' 오류 발생 -> AVG(salary)는 하나의 행으로 결과 반환, department_id는 하나의 행으로 결과를 반환할 수 없어 발생하는 것
+SELECT department_id, salary FROM employees ORDER BY department_id;
+-- 수정
+-- 그룹별 집계를 위해서는 GROUP BY절을 이용
+SELECT department_id, ROUND(AVG(salary),2) "Average Salary" FROM employees GROUP BY department_id ORDER BY department_id;
+
+-- 집계 함수를 사용한 쿼리문의 SELECT 컬럼 목록에는
+-- 그룹핑에 참여한 필드 or 집계 함수만 올 수 있다.
+-- HAVING()절
+-- 평균 급여가 7000이상인 부사만 출력
+-- 흔히 범하는 오류
+SELECT department_id, AVG(salary) FROM employees WHERE AVG(salary)>=7000 GROUP BY department_id; -- '단일 그룹의 그룹 함수가 아닙니다' 오류 발생 
+                                                                                                 -- -> WHERE절은 group by, 집계가 일어나기 전에 체크되기 때문에 avg(salary)라는 컬럼이 없는 상태일 때 조건을 확인하게 되어 오류가 발생하는 것
+-- 수정
+-- HAVING절을 사용 : group by, 집계 함수 이후에 조건을 확인
+SELECT department_id, ROUND(AVG(salary),2) FROM employees GROUP BY department_id HAVING AVG(salary)>=7000 ORDER BY department_id;
+-- 연습
+-- 급여 합계가 20000이상인 부서의 부서 번호와 인원 수, 급여 합계 출력
+SELECT department_id, COUNT(*), SUM(salary) FROM employees GROUP BY department_id HAVING SUM(salary)>=20000 ORDER BY SUM(salary) DESC;
+
+-- 분석함수 : group by절과 함께 사용된다.
+-- ROLLUP : 그룹핑 된 결과에 대한 좀 더 상세한 요약을 제공, 일종의 ITEM Total 기능 수행
+SELECT department_id, job_id, SUM(salary) FROM employees GROUP BY department_id, job_id ORDER BY department_id, job_id;
+-- OR
+SELECT department_id, job_id, SUM(salary) FROM employees GROUP BY ROLLUP(department_id, job_id) ORDER BY department_id;
+
+-- CUBE : cross tab에 의한 summary 함께 추출
+-- rollup 함수에 의해 제공되는 item total과 함께 column total 값을 함께 제공
+SELECT department_id, job_id, SUM(salary) FROM employees GROUP BY CUBE(department_id, job_id) ORDER BY department_id;
