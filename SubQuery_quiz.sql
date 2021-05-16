@@ -14,3 +14,5 @@ SELECT employee_id, first_name, salary FROM employees WHERE salary < ANY(SELECT 
 
 -- 5. 각 부서별로 최고의 급여를 받는 사원의 직원번호, 이름, 급여, 부서번호 조회
 -- 조회결과는 급여의 내림차순으로 정렬, 조건절 비교, 조인비교 2가지 방법으로 작성
+SELECT employee_id, first_name, department_id FROM employees;
+SELECT department_id, MAX(salary) FROM employees GROUP BY department_id;
