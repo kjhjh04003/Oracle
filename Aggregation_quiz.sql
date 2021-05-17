@@ -1,5 +1,7 @@
 -- 1. 매니저가 있는 직원은 몇 명입니까?
 SELECT COUNT(*) as haveMngCnt FROM employees emp JOIN employees man ON emp.manager_id=man.employee_id;
+-- OR
+SELECT COUNT(manager_id) haveMngCne FROM employees WHERE manager_id IS NOT NULL;
 
 -- 2. 직원중에 최고임금과 최저임금을 "최고임금","최저임금" 타이틀로 출력
 -- 두 임금 차이는 얼마인지를 "최고임금-최저임금" 타이틀로 출력
@@ -9,6 +11,8 @@ FROM employees;
 -- 3. 마지막으로 신입사원이 들어온 날은 언제인지 2014년 07월 10일 형식으로 출력
 SELECT TO_CHAR(hire_date, 'YYYY"년"MM"월"DD"일"') as hire_date FROM (SELECT hire_date FROM employees ORDER BY hire_date DESC)
 WHERE rownum<2;
+-- OR
+SELECT TO_CHAR(MAX(hire_date), 'YYYY"년"MM"월"DD"일"') FROM employees;
 
 -- 4. 부서별로 평균임금, 최고임금, 최저임음을 부서아이디와 함께 출력
 -- 정렬 순서는 부서번호 내림차순
@@ -24,6 +28,8 @@ FROM employees GROUP BY job_id HAVING MIN(salary)>2500 ORDER BY 최소임금 DES
 -- 6. 가장 오래 근속한 직원의 입사일은 언제인지 2001-01-13 토요일 형식으로 출력
 SELECT TO_CHAR(hire_date, 'YYYY-MM-DD DAY') as 입사일
 FROM (SELECT hire_date FROM employees ORDER BY hire_date) WHERE rownum<2;
+-- OR
+SELECT TO_CHAR(MIN(hire_date),'YYYY-MM-DD DAY') FROM employees;
 
 -- 7. 평균임금과 최저임금의 차이가 2000 미만인 부서, 평균임금, 최저임금, (평균임금-최저임금)을 (평균임금-최저임금) 내임차순으로 출력
 SELECT department_id, ROUND(AVG(salary),2) as 평균임금, MIN(salary) as 최저임금, ROUND((AVG(salary)-MIN(salary)),2) as "평균임금-최저임금"
@@ -36,8 +42,8 @@ FROM employees GROUP BY job_id ORDER BY "최고임금-최저임금" DESC;
 -- 9. 2005년 이후 입사자 중 관리자별로 평균급여가 5000이상 중 평균급여 최소급여 최대급여 출력
 -- 평균급여 내림차순 , 첫번째 자리까지 반올림
 SELECT manager_id, ROUND(AVG(salary),1) 평균급여, MIN(salary) 최소급여, MAX(salary) 최대급여
-FROM employees WHERE hire_date >= (SELECT hire_date FROM employees WHERE hire_date LIKE '05%')
-GROUP BY manager_id HAVING AVG(salary)>=5000 AND hire_date >'05/01/01'
+FROM employees WHERE hire_date >= '05/01/01'
+GROUP BY manager_id HAVING AVG(salary)>=5000
 ORDER BY 평균급여 DESC;
 
 -- 10. 입사일이 02/12/31일 이전이면 '창립멤버', 03년은 '03년입사', 04년은 '04년입사' 이후 입사자는 '상장이후입사'를 optDate 컬럼에 출력
