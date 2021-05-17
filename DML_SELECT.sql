@@ -119,6 +119,9 @@ SELECT first_name, salary, TO_CHAR(hire_date, 'YYYY-MM') as hire_date, departmen
 
 -- 7. 이름에 S또는 s가 들어가는 직원의 이름, 월급 출력
 SELECT first_name, salary FROM employees WHERE first_name LIKE '%S%' OR first_name LIKE '%s%'; -- 32개행
+-- OR
+SELECT first_name, salary FROM employees WHERE upper(first_name) like '%S%';
+
 -----------------------------------------------
 
 -----------------------------------------------
@@ -249,6 +252,10 @@ SELECT * FROM departments ORDER BY LENGTH(department_name) DESC;
 
 -- 9. 나라이름을 대문자로 출력하고 오름차순
 SELECT UPPER(country_name) FROM countries ORDER BY country_name;
+-- OR
+select upper(country_name) country_name 
+from countries
+order by upper(country_name) asc ;
 
 -- 10. 입사일이 03/12/31일 이전에 입사한 직원의 이름, 월급 ,전화번호, 입사일을 출력
 -- 전화번호는 545-343-3433 형태로 출력
