@@ -79,8 +79,15 @@ WHERE loc.location_id=dept.location_id  AND c.country_id=loc.country_id ORDER BY
 SELECT emp.employee_id,emp.first_name ||' '|| emp.last_name as "name", his.job_id, his.start_date, his.end_date
 FROM employees emp JOIN job_history his ON emp.employee_id=his.employee_id
 WHERE his.job_id='AC_ACCOUNT'; -- 2 개행
+-- OR
+SELECT emp.employee_id,emp.first_name ||' '|| emp.last_name as "name", his.job_id, his.start_date, his.end_date
+FROM employees emp, job_history his WHERE emp.employee_id=his.employee_id AND his.job_id='AC_ACCOUNT'; 
 
 -- 8. 각 부서에 대해서 부서번호, 부서이름, 매니저의 이름, 위치한 도시, 나라의 이름, 지역구분 이름까지 전부 출력
+SELECT d.department_id as 부서번호, d.department_name as 부서이름, e.first_name as 매니저이름, l.city as 위치한도치, c.country_name as 나라, r.region_name as 지역명
+FROM departments d, employees e, locations l, countries c, regions r
+WHERE d.manager_id=e.employee_id AND d.location_id=l.location_id AND l.country_id=c.country_id AND c.region_id=r.region_id
+ORDER BY d.department_id;
 
 --9. 각 사원에 대해서 사번, 이름, 부서명, 매니저의 이름 조회
 -- 부서가 없는 직원도 표시
