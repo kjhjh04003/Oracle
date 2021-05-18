@@ -59,6 +59,15 @@ FROM employees e, departments d
 WHERE e.department_id=d.department_id;
 
 -- 7. 평균 연봉이 가장 높은 부서 직원들의 직원번호, 이름, 성과 업무, 연봉 조회
+ select employee_id "사번", first_name "이름", last_name "성", job_title "업무", salary "급여"
+ from employees e, jobs j, (select department_id, avg(salary) avgSalary from employees group by department_id order by avgSalary desc) t
+ where e.department_id=t.department_id
+
+select e.department_id, avgSalary from (select department_id, avg(salary) avgSalary from employees group by department_id order by avgSalary desc) t, employees e
+where t.department_id=e.department_id;
+
+
+
 
 -- 8. 평균 급여가 가장 높은 부서는?
 SELECT department_name FROM (SELECT department_id, avg(salary) avgSalary FROM employees GROUP BY department_id order by avgSalary DESC) t, departments d
