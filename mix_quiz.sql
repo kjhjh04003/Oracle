@@ -58,6 +58,12 @@ SELECT first_name ||' '|| last_name name, salary*12 pay, department_name
 FROM employees e, departments d
 WHERE e.department_id=d.department_id;
 
+-- 7. 평균 연봉이 가장 높은 부서 직원들의 직원번호, 이름, 성과 업무, 연봉 조회
+
+-- 8. 평균 급여가 가장 높은 부서는?
+SELECT department_name FROM (SELECT department_id, avg(salary) avgSalary FROM employees GROUP BY department_id order by avgSalary DESC) t, departments d
+WHERE d.department_id=t.department_id AND rownum<2;
+
 -- 9. 평균 급여가 가장 높은 지역
 -- regions.region_id=countries.region_id / countries.country_id=locations.country_id / locations.location_id=departments.departments_location_id
 -- departments_department_id=employees.department_id\
