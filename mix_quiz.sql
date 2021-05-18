@@ -20,7 +20,7 @@ ORDER BY salary DESC;
 -- 매니저아이디, 매니저 이름, 매니저별 평균급여, 매니저별최소급여, 매니저별최대급여 츨력
 --SELECT manager_id, ROUND(AVG(salary),1) avgSalary, MIN(salary) minSalary, MAX(salary) maxSalary
 --FROM employees WHERE hire_date >= '2005/01/01' GROUP BY manager_id HAVING AVG(salary) >= 5000; -- 9 개행
---
+-- 
 --select  t.manager_id,
 --        e.first_name,
 --        t.avgSalary,
@@ -57,3 +57,12 @@ SELECT MIN(hire_date) FROM employees;
 SELECT first_name ||' '|| last_name name, salary*12 pay, department_name
 FROM employees e, departments d
 WHERE e.department_id=d.department_id;
+
+-- 9. 평균 급여가 가장 높은 지역
+-- regions.region_id=countries.region_id / countries.country_id=locations.country_id / locations.location_id=departments.departments_location_id
+-- departments_department_id=employees.department_id\
+select region_name from regions;
+
+
+-- 10. 평균 급여가 가장 높은 업무
+SELECT job_title FROM (SELECT avg(salary) avgSalary FROM employees GROUP BY job_id order by avgSalary DESC) t, jobs WHERE rownum<2;
