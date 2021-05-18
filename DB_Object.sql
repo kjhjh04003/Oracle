@@ -94,7 +94,7 @@ VALUES((SELECT MAX(author_id)+1 FROM author),'Unknow');
                                 MINVALUE 1
                                 MAXVALUE 1000000
                                 NOCACHE;
-
+select *from author;
 -- 시퀀스를 이용한 PK 부여
 INSERT INTO author(author_id, author_name)
 VALUES (seq_author_id.NEXTVAL, 'Steven King');
@@ -131,3 +131,5 @@ CREATE SEQUENCE sqp_book_id
     INCREMENT BY 1
     MAXVALUE 1000000;
 SELECT *FROM USER_SEQUENCES;
+
+commit;
