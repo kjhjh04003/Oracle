@@ -133,3 +133,11 @@ CREATE SEQUENCE sqp_book_id
 SELECT *FROM USER_SEQUENCES;
 
 commit;
+
+INSERT INTO author(author_id, author_name) VALUES(seq_author_id.nextvar, '홍길동');
+INSERT INTO author(author_id, author_name) VALUES(seq_author_id.nextvar, '고길동');
+
+INSERT INTO author(author_id, author_name)
+VALUES (seq_author_id.NEXTVAL, '고길동');
+select *From author;
+commit;
